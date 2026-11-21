@@ -1,0 +1,64 @@
+/* "Sakit Məkan" — rəng və ölçü tokenləri */
+:root {
+  color-scheme: light;
+  --bg: #fbf9f5;
+  --surface: #f2efe9;
+  --surface-2: #fffdf9;
+  --sage: #356859;
+  --sage-strong: #2c5749;
+  --sage-soft: rgba(53, 104, 89, 0.1);
+  --sage-softer: rgba(53, 104, 89, 0.06);
+  --on-sage: #fbf9f5;
+  --clay: #b8745b;
+  --clay-strong: #9c5e47; /* gil rənginin tünd çaları — üzərində ağ mətn oxunaqlı qalsın */
+  --clay-soft: rgba(184, 116, 91, 0.13);
+  --ink: #1b2a24;
+  --muted: #5b6862;
+  --line: rgba(27, 42, 36, 0.1);
+  --line-strong: rgba(27, 42, 36, 0.18);
+  --shadow: 0 1px 2px rgba(27, 42, 36, 0.04), 0 8px 28px rgba(27, 42, 36, 0.06);
+  --shadow-lift: 0 2px 4px rgba(27, 42, 36, 0.05), 0 16px 40px rgba(27, 42, 36, 0.09);
+  --focus: 0 0 0 3px rgba(53, 104, 89, 0.35);
+
+  --font-serif: 'Lora', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --r-lg: 24px;
+  --r-md: 16px;
+  --r-sm: 12px;
+  --r-pill: 999px;
+  --gutter: 16px;
+  --nav-h: 68px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #101715;
+    --surface: #192320;
+    --surface-2: #1e2a26;
+    --sage: #88c0ac;
+    --sage-strong: #9dcdbb;
+    --sage-soft: rgba(136, 192, 172, 0.13);
+    --sage-softer: rgba(136, 192, 172, 0.07);
+    --on-sage: #101715;
+    --clay: #b8745b;
+    --clay-strong: #9c5e47;
+    --clay-soft: rgba(184, 116, 91, 0.16);
+    --ink: #ece7de;
+    --muted: #a3ada8;
+    --line: rgba(236, 231, 222, 0.09);
+    --line-strong: rgba(236, 231, 222, 0.17);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 28px rgba(0, 0, 0, 0.22);
+    --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.3), 0 16px 40px rgba(0, 0, 0, 0.32);
+    --focus: 0 0 0 3px rgba(136, 192, 172, 0.4);
+  }
+}
+
+@media (min-width: 600px) {
+  :root {
+    --gutter: 24px;
+  }
+}

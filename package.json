@@ -1,0 +1,25 @@
+{
+  "name": "psychoai",
+  "version": "1.0.0",
+  "description": "PsychoAI - Azerbaycan dilli AI psixoloq",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "office": "node office/server.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "playwright": "^1.49.1",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
+  },
+  "private": true
+}

@@ -1,0 +1,11 @@
+.env
+.env.*
+office
+spike
+docs
+tests
+.claude
+.team
+dist
+node_modules
+AGENTS.md

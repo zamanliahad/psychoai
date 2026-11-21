@@ -1,0 +1,9 @@
+﻿node_modules/
+dist/
+.env
+.env.*
+office/status/
+spike/
+.vercel/
+.vercel
+.env*

@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PsychoAI Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@600&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --wall:#E9E1D3; --wall2:#E2D8C6; --floor:#CDB89A; --floor2:#C4AE8E; --ink:#1B2A24; --muted:#6c6458;
+    --sage:#356859; --clay:#B8745B; --paper:#FBF9F5; --desk:#8B6A4E; --desk2:#73563F; --bg:#F4EFE6;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", system-ui, sans-serif; }
+  header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 20px; flex-wrap:wrap; }
+  header h1 { font-family:Lora, serif; font-size:22px; margin:0; }
+  header h1 span { color:var(--sage); }
+  .pill { background:#fff; border-radius:999px; padding:6px 12px; font-size:13px; box-shadow:0 1px 0 rgba(0,0,0,.06); }
+  .pill b { color:var(--sage); }
+
+  .layout { display:grid; grid-template-columns: 1fr 340px; gap:16px; padding:0 20px 20px; }
+  @media (max-width: 1000px) { .layout { grid-template-columns:1fr; } }
+
+  /* ---------- room ---------- */
+  .room { position:relative; border-radius:22px; overflow:hidden; box-shadow:0 10px 30px rgba(60,40,20,.15); background:var(--floor); min-height:640px; }
+  .wall { height:170px; background:linear-gradient(var(--wall), var(--wall2)); position:relative; border-bottom:10px solid #B79C7C; }
+  .window { position:absolute; left:6%; top:26px; width:200px; height:110px; border:8px solid #fff; border-radius:8px; overflow:hidden; background:var(--sky, #9fd3f0); box-shadow: inset 0 0 0 2px rgba(0,0,0,.05); }
+  .window::before { content:""; position:absolute; left:50%; top:0; bottom:0; width:6px; background:#fff; transform:translateX(-50%); }
+  .sun { position:absolute; width:34px; height:34px; border-radius:50%; background:var(--sun, #FFD56B); top:var(--sunY, 18px); left:40px; box-shadow:0 0 20px var(--sun, #FFD56B); transition: all 2s; }
+  .hill { position:absolute; bottom:-30px; left:-20px; width:140px; height:70px; border-radius:50%; background:#7FA88F; }
+  .hill.h2 { left:90px; width:160px; background:#6B967E; bottom:-38px; }
+  .sign { position:absolute; left:50%; top:30px; transform:translateX(-50%); background:var(--sage); color:#fff; font-family:Lora, serif; padding:12px 26px; border-radius:12px; font-size:22px; box-shadow:0 6px 0 #284f44; white-space:nowrap; }
+  .sign small { display:block; font-family:"Plus Jakarta Sans"; font-size:11px; opacity:.85; letter-spacing:.12em; text-align:center; }
+  .clock { position:absolute; right:7%; top:34px; width:84px; height:84px; border-radius:50%; background:#fff; border:6px solid var(--clay); }
+  .clock i { position:absolute; left:50%; bottom:50%; transform-origin:50% 100%; background:var(--ink); border-radius:3px; }
+  .clock .hh { width:4px; height:22px; margin-left:-2px; }
+  .clock .mm { width:3px; height:30px; margin-left:-1.5px; }
+  .clock .ss { width:1.5px; height:32px; margin-left:-.75px; background:var(--clay); }
+  .shelf { position:absolute; right:22%; top:62px; width:120px; height:8px; background:#8B6A4E; border-radius:3px; }
+  .shelf::before { content:"📚🪴"; position:absolute; bottom:6px; left:10px; font-size:26px; letter-spacing:6px; }
+
+  .floor { position:relative; padding:28px 18px 40px;
+    background-image: linear-gradient(90deg, rgba(0,0,0,.04) 1px, transparent 1px), linear-gradient(rgba(0,0,0,.04) 1px, transparent 1px);
+    background-size: 48px 48px; }
+  .rug { position:absolute; left:50%; top:200px; transform:translateX(-50%); width:70%; height:300px; border-radius:50%; background:radial-gradient(#d9c3a3, #cbb08b 70%); opacity:.6; }
+  .plant { position:absolute; font-size:44px; filter:drop-shadow(0 6px 4px rgba(0,0,0,.2)); }
+
+  .desks { position:relative; display:grid; grid-template-columns:repeat(3, 1fr); gap:26px 18px; z-index:1; }
+  .boss { grid-column: 1 / -1; justify-self:center; }
+  @media (max-width: 640px) { .desks { grid-template-columns:repeat(2, 1fr); } }
+
+  /* ---------- station ---------- */
+  .station { position:relative; display:flex; flex-direction:column; align-items:center; min-height:230px; padding-top:70px; }
+  .bubble { position:absolute; top:0; left:50%; transform:translateX(-50%); max-width:220px; min-width:120px; background:#fff; border-radius:14px; padding:8px 11px; font-size:12.5px; line-height:1.35; box-shadow:0 4px 12px rgba(0,0,0,.12); text-align:center; z-index:3; transition: opacity .3s; }
+  .bubble::after { content:""; position:absolute; bottom:-7px; left:50%; margin-left:-7px; border:7px solid transparent; border-bottom:0; border-top-color:#fff; }
+  .bubble:empty { opacity:0; }
+  .bubble.fresh { animation: pop .5s ease; }
+  @keyframes pop { 0%{ transform:translateX(-50%) scale(.6); } 70%{ transform:translateX(-50%) scale(1.06);} 100%{ transform:translateX(-50%) scale(1);} }
+
+  .person { position:relative; width:64px; height:78px; z-index:2; }
+  .head { position:absolute; left:14px; top:0; width:36px; height:36px; border-radius:50%; background:#F1C9A5; z-index:2; transition: transform .4s; }
+  .hair { position:absolute; left:-2px; top:-4px; width:40px; height:20px; border-radius:20px 20px 6px 6px; background:var(--hair); }
+  .eye { position:absolute; top:17px; width:4px; height:5px; background:var(--ink); border-radius:2px; animation: blink 4s infinite; }
+  .eye.l { left:10px; } .eye.r { right:10px; }
+  .mouth { position:absolute; left:50%; bottom:6px; width:10px; height:4px; margin-left:-5px; border-bottom:2px solid #9a5a45; border-radius:0 0 8px 8px; }
+  @keyframes blink { 0%,94%,100%{ transform:scaleY(1);} 96%{ transform:scaleY(.1);} }
+  .body { position:absolute; left:8px; top:32px; width:48px; height:44px; border-radius:18px 18px 8px 8px; background:var(--c); }
+  .arm { position:absolute; top:44px; width:10px; height:26px; border-radius:6px; background:var(--c); filter:brightness(.9); transform-origin: top center; z-index:3; }
+  .arm.l { left:2px; } .arm.r { right:2px; }
+  .badge { position:absolute; top:42px; left:50%; transform:translateX(-50%); font-size:16px; z-index:3; }
+
+  .desk { position:relative; width:170px; height:58px; margin-top:-14px; background:linear-gradient(var(--desk), var(--desk2)); border-radius:10px; box-shadow:0 10px 0 rgba(0,0,0,.12); z-index:2; }
+  .monitor { position:absolute; left:10px; top:-46px; width:62px; height:44px; background:#2b2f2d; border-radius:6px; padding:4px; z-index:3; transform: perspective(200px) rotateY(18deg); }
+  .boss .monitor { left:24px; }
+  .monitor::after { content:""; position:absolute; left:50%; bottom:-10px; width:10px; height:10px; margin-left:-5px; background:#2b2f2d; }
+  .screen { width:100%; height:100%; border-radius:3px; background:#203029; overflow:hidden; position:relative; }
+  .lines { position:absolute; inset:4px; display:flex; flex-direction:column; gap:4px; }
+  .lines i { height:3px; border-radius:2px; background:var(--c); opacity:.75; }
+  .mug { position:absolute; right:14px; top:-16px; font-size:20px; z-index:3; }
+  .person { margin-left:40px; }
+  .boss .person { margin-left:0; }
+  .name { margin-top:14px; background:#fff; padding:5px 12px; border-radius:999px; font-weight:700; font-size:13px; display:flex; gap:7px; align-items:center; box-shadow:0 2px 0 rgba(0,0,0,.08); }
+  .dot { width:9px; height:9px; border-radius:50%; background:#aaa; }
+  .role { font-size:11.5px; color:var(--muted); margin-top:4px; text-align:center; max-width:190px; }
+
+  /* boss desk */
+  .boss .desk { width:240px; background:linear-gradient(#5a3f2c, #452f20); }
+  .boss .name { background:var(--clay); color:#fff; }
+  .crown { position:absolute; top:-18px; left:50%; transform:translateX(-50%); font-size:20px; z-index:4; }
+
+  /* ---------- states ---------- */
+  .st-working .arm { animation: type .35s infinite alternate; }
+  .st-working .arm.r { animation-delay:.17s; }
+  @keyframes type { from{ transform: rotate(-8deg);} to{ transform: rotate(8deg) translateY(2px);} }
+  .st-working .lines { animation: scroll 1.6s linear infinite; }
+  @keyframes scroll { from{ transform:translateY(0);} to{ transform:translateY(-28px);} }
+  .st-working .dot { background:#2f9e6b; box-shadow:0 0 0 4px rgba(47,158,107,.2); }
+
+  .st-thinking .head { transform: rotate(-12deg); }
+  .st-thinking .dot { background:#e0a43b; }
+  .st-thinking .screen { filter: brightness(.6); }
+  .st-thinking .think { display:block; }
+  .think { display:none; position:absolute; top:-26px; right:-18px; font-size:12px; background:#fff; border-radius:12px; padding:2px 7px; z-index:4; }
+  .think b { animation: dots 1.2s infinite; display:inline-block; }
+  .think b:nth-child(2){ animation-delay:.2s;} .think b:nth-child(3){ animation-delay:.4s;}
+  @keyframes dots { 0%,100%{ transform:translateY(0); opacity:.4;} 50%{ transform:translateY(-3px); opacity:1;} }
+
+  .st-done .person { animation: hop .8s ease 2; }
+  .st-done .dot { background:var(--sage); }
+  .st-done .screen { background:#1f4a3d; }
+  @keyframes hop { 0%,100%{ transform:translateY(0);} 40%{ transform:translateY(-14px);} }
+  .st-done .badge::before { content:"✅"; }
+
+  .st-problem .person { animation: shake .4s infinite; }
+  .st-problem .dot { background:#d2483c; box-shadow:0 0 0 4px rgba(210,72,60,.25); }
+  .st-problem .screen { background:#5a1f1a; animation: flash 1s infinite; }
+  .st-problem .badge::before { content:"❗"; }
+  .st-problem .bubble { background:#fdecea; }
+  .st-problem .bubble::after { border-top-color:#fdecea; }
+  @keyframes shake { 0%,100%{ transform:translateX(0);} 25%{ transform:translateX(-2px);} 75%{ transform:translateX(2px);} }
+  @keyframes flash { 50%{ filter:brightness(1.5);} }
+
+  .st-idle .eye { height:1px; top:20px; animation:none; }
+  .st-idle .head { transform: rotate(8deg) translateY(3px); }
+  .st-idle .screen { background:#151b18; }
+  .st-idle .lines { opacity:.15; }
+  .zzz { display:none; position:absolute; top:-14px; right:-6px; font-size:13px; color:var(--muted); font-weight:700; animation: float 2.4s infinite; z-index:4; }
+  .st-idle .zzz { display:block; }
+  @keyframes float { 0%{ transform:translate(0,0); opacity:0;} 30%{ opacity:1;} 100%{ transform:translate(10px,-18px); opacity:0;} }
+
+  /* ---------- side panel ---------- */
+  .panel { display:flex; flex-direction:column; gap:16px; }
+  .card { background:#fff; border-radius:18px; padding:16px; box-shadow:0 4px 18px rgba(60,40,20,.08); }
+  .card h3 { margin:0 0 10px; font-family:Lora, serif; font-size:17px; }
+  .stats { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; text-align:center; }
+  .stats div { background:var(--paper); border-radius:12px; padding:8px 4px; }
+  .stats b { display:block; font-size:22px; color:var(--sage); }
+  .stats span { font-size:11px; color:var(--muted); }
+  .log { max-height:520px; overflow:auto; display:flex; flex-direction:column; gap:8px; }
+  .entry { display:grid; grid-template-columns: 28px 1fr; gap:8px; font-size:13px; animation: slide .35s ease; }
+  @keyframes slide { from{ opacity:0; transform:translateY(-6px);} to{ opacity:1; transform:none;} }
+  .entry .av { width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-size:14px; background:var(--c); }
+  .entry .meta { font-size:11px; color:var(--muted); }
+  .entry .meta b { color:var(--ink); }
+  .tag { font-size:10px; padding:1px 6px; border-radius:6px; margin-left:4px; background:#eee; }
+  .tag.working{ background:#dff3e8;} .tag.thinking{ background:#fbefd6;} .tag.done{ background:#dbe9e3;} .tag.problem{ background:#fadcd8;} .tag.idle{ background:#eee;}
+  .empty { color:var(--muted); font-size:13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>PsychoAI <span>Studio</span> — komanda ofisi</h1>
+  <div style="display:flex; gap:8px; flex-wrap:wrap">
+    <div class="pill">Rəhbər: <b>Ahad</b></div>
+    <div class="pill" id="online">Bağlanır…</div>
+    <div class="pill" id="bakuTime">—</div>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="room">
+    <div class="wall">
+      <div class="window"><div class="sun"></div><div class="hill"></div><div class="hill h2"></div></div>
+      <div class="sign">PsychoAI<small>AZƏRBAYCAN DİLLİ AI PSİXOLOQ</small></div>
+      <div class="shelf"></div>
+      <div class="clock"><i class="hh"></i><i class="mm"></i><i class="ss"></i></div>
+    </div>
+    <div class="floor">
+      <div class="rug"></div>
+      <div class="plant" style="left:12px; top:30px">🪴</div>
+      <div class="plant" style="right:12px; top:30px">🌿</div>
+      <div class="plant" style="left:16px; bottom:10px">🌵</div>
+      <div class="plant" style="right:18px; bottom:10px">🪴</div>
+      <div class="desks" id="desks"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="card">
+      <h3>Komanda vəziyyəti</h3>
+      <div class="stats">
+        <div><b id="nWorking">0</b><span>işləyir</span></div>
+        <div><b id="nDone">0</b><span>tamamladı</span></div>
+        <div><b id="nProblem">0</b><span>problem</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Canlı jurnal</h3>
+      <div class="log" id="log"><div class="empty">Hələ heç kim danışmayıb…</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TEAM = [
+  { id:"ahad",   name:"Ahad",   role:"Komanda rəhbəri — son söz onundur", c:"#B8745B", hair:"#2a1d16", icon:"👑", boss:true },
+  { id:"firca",  name:"Fırça",  role:"Arayüz və dizayn",                    c:"#E39B7B", hair:"#6b3b2a", icon:"🎨" },
+  { id:"seda",   name:"Səda",   role:"Səs və Gemini Live",                  c:"#7FA6D9", hair:"#1f1f2e", icon:"🎙️" },
+  { id:"usta",   name:"Usta",   role:"Backend və fayllar",                  c:"#8E9B6B", hair:"#3a2c1c", icon:"🔧" },
+  { id:"derya",  name:"Dərya",  role:"Psixoloq məzmunu və təhlükəsizlik",   c:"#B79AD8", hair:"#5a2d1e", icon:"🧠" },
+  { id:"qartal", name:"Qartal", role:"Yoxlama (QA) və düzəlişlər",          c:"#E0B44F", hair:"#222",    icon:"🦅" },
+];
+const STATE_AZ = { idle:"boşdur", working:"işləyir", thinking:"düşünür", done:"hazırdır", problem:"problem" };
+const byId = Object.fromEntries(TEAM.map(t => [t.id, t]));
+
+const desks = document.getElementById("desks");
+for (const t of TEAM) {
+  const el = document.createElement("div");
+  el.className = "station st-idle" + (t.boss ? " boss" : "");
+  el.id = "st-" + t.id;
+  el.style.setProperty("--c", t.c); el.style.setProperty("--hair", t.hair);
+  el.innerHTML = `
+    <div class="bubble"></div>
+    <div class="person">
+      ${t.boss ? '<div class="crown">👑</div>' : ''}
+      <div class="think"><b>•</b><b>•</b><b>•</b></div><div class="zzz">z z</div>
+      <div class="head"><div class="hair"></div><div class="eye l"></div><div class="eye r"></div><div class="mouth"></div></div>
+      <div class="body"></div><div class="arm l"></div><div class="arm r"></div><div class="badge"></div>
+    </div>
+    <div class="desk">
+      <div class="monitor"><div class="screen"><div class="lines">${Array.from({length:12}, (_, i) => `<i style="width:${30 + (i*37)%60}%"></i>`).join("")}</div></div></div>
+      <div class="mug">${t.boss ? "☕" : t.icon}</div>
+    </div>
+    <div class="name"><span class="dot"></span>${t.name}</div>
+    <div class="role">${t.role}</div>`;
+  desks.appendChild(el);
+}
+
+let lastSeen = {};
+let logKey = "";
+function fmtTime(iso) { return new Date(iso).toLocaleTimeString("az-AZ", { hour:"2-digit", minute:"2-digit", timeZone:"Asia/Baku" }); }
+
+async function tick() {
+  try {
+    const r = await fetch("/status", { cache:"no-store" });
+    const data = await r.json();
+    document.getElementById("online").innerHTML = "🟢 Canlı";
+    const counts = { working:0, done:0, problem:0 };
+    for (const t of TEAM) {
+      const s = data.agents[t.id] || (t.boss ? { state:"working", message:"Komandanı izləyirəm 👀" } : { state:"idle", message:"" });
+      const el = document.getElementById("st-" + t.id);
+      el.className = `station st-${s.state}` + (t.boss ? " boss" : "");
+      const b = el.querySelector(".bubble");
+      if (b.textContent !== (s.message || "")) { b.textContent = s.message || ""; b.classList.remove("fresh"); void b.offsetWidth; b.classList.add("fresh"); }
+      if (!t.boss && counts[s.state] !== undefined) counts[s.state]++;
+    }
+    nWorking.textContent = counts.working; nDone.textContent = counts.done; nProblem.textContent = counts.problem;
+
+    const key = data.log.length + (data.log.at(-1)?.at || "");
+    if (key !== logKey) {
+      logKey = key;
+      const log = document.getElementById("log");
+      log.innerHTML = data.log.length ? "" : '<div class="empty">Hələ heç kim danışmayıb…</div>';
+      for (const e of [...data.log].reverse()) {
+        const t = byId[e.agent] || { name:e.agent, c:"#ccc", icon:"🤖" };
+        const d = document.createElement("div"); d.className = "entry"; d.style.setProperty("--c", t.c + "55");
+        d.innerHTML = `<div class="av">${t.icon}</div><div><div class="meta"><b>${t.name}</b> · ${fmtTime(e.at)}<span class="tag ${e.state}">${STATE_AZ[e.state] || e.state}</span></div><div></div></div>`;
+        d.lastElementChild.lastElementChild.textContent = e.message;
+        log.appendChild(d);
+      }
+    }
+  } catch { document.getElementById("online").innerHTML = "🔴 Server yoxdur"; }
+}
+
+function clock() {
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat("en-GB", { timeZone:"Asia/Baku", hour:"numeric", minute:"numeric", second:"numeric", hour12:false }).formatToParts(now);
+  const g = k => +parts.find(p => p.type === k).value;
+  const h = g("hour"), m = g("minute"), s = g("second");
+  document.querySelector(".hh").style.transform = `rotate(${(h % 12) * 30 + m / 2}deg)`;
+  document.querySelector(".mm").style.transform = `rotate(${m * 6}deg)`;
+  document.querySelector(".ss").style.transform = `rotate(${s * 6}deg)`;
+  document.getElementById("bakuTime").textContent = "Bakı " + String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+  const night = h < 7 || h >= 19, dusk = h >= 17 && h < 19;
+  const root = document.documentElement.style;
+  root.setProperty("--sky", night ? "#1d2747" : dusk ? "#f2a774" : "#9fd3f0");
+  root.setProperty("--sun", night ? "#f4f1d6" : "#FFD56B");
+  root.setProperty("--sunY", night ? "14px" : dusk ? "60px" : "18px");
+}
+
+tick(); clock();
+setInterval(tick, 1000); setInterval(clock, 1000);
+</script>
+</body>
+</html>
